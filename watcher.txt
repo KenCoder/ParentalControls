@@ -2,7 +2,7 @@ Schedule:
     - Fri: 15-24
     - Sat: 11-24
     - Sun: 0-2
-    - Tue: 7-9:30
+    - Tue: 8:25-9:30
 
 Block:
     Programs:

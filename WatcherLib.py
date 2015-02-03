@@ -1,4 +1,5 @@
 import logging
+import sys
 
 weekdays = "Mon Tue Wed Thu Fri Sat Sun".split(" ")
 
@@ -10,7 +11,6 @@ def time_num(t):
         return int(t) * 60
 
 def games_allowed(schedule, when):
-    try:
         t = when.timetuple()
         h, m, dow = t[3], t[4], t[6]
         dows = weekdays[dow]
@@ -21,9 +21,5 @@ def games_allowed(schedule, when):
                 start, end = [time_num(x) for x in times.split("-")]
                 if start <= tm < end:
                     return True
-        return False
-
-    except:
-        logging.warning("Failed with error %s" %  sys.exc_info()[0])
         return False
 

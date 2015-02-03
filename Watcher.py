@@ -49,7 +49,7 @@ def execute_loop():
     now = datetime.datetime.now()
     if games_allowed(sched, now):
         for how_much in [1, 2]:
-            if not how_much in warned and not games_allowed(sched, datetime.timedelta(minutes=how_much)):
+            if not how_much in warned and not games_allowed(sched, now + datetime.timedelta(minutes=how_much)):
                 warned.add(how_much)
                 subprocess.call(os.path.join(mydir, 'warn%s.wma' % how_much), shell=True)
                 break
