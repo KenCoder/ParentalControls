@@ -1,0 +1,10 @@
+Schedule:
+    - Fri: 15-24
+    - Sat: 11-24
+    - Sun: 0-2
+
+Block:
+    Programs:
+        - steam.exe
+    Folders:
+        - dota
