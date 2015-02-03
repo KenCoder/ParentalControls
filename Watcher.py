@@ -10,6 +10,7 @@ import time
 import sys
 import os
 import datetime
+import urllib
 import win32service
 import win32api
 import win32event
@@ -30,9 +31,9 @@ warned = set()
 
 def execute_loop():
     global last_full, wmi_api
-
-    with open(os.path.join(mydir, 'watcher.txt')) as f:
-        config = yaml.safe_load(f)
+    f = urllib.urlopen("https://raw.githubusercontent.com/KenCoder/ParentalControls/master/watcher.txt")
+    config = yaml.safe_load(f)
+    f.close()
     had_block = False
     full_log = time.time() - last_full > log_frequency
 
