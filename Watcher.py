@@ -24,6 +24,7 @@ from WatcherLib import games_allowed
 
 mydir = os.path.dirname(os.path.realpath(__file__))
 
+schedule = r'https://www.dropbox.com/s/j5g11lhkb8gvlyv/Duncan.txt?dl=1'
 log_frequency = 60
 last_full = 0
 wmi_api = None
@@ -37,7 +38,7 @@ def execute_loop():
                             format='%(asctime)s %(message)s')
         initialized = True
 
-    f = urllib.urlopen("https://raw.githubusercontent.com/KenCoder/ParentalControls/master/watcher.txt")
+    f = urllib.urlopen(schedule)
     config = yaml.safe_load(f)
     f.close()
     had_block = False
