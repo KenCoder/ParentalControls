@@ -28,9 +28,15 @@ log_frequency = 60
 last_full = 0
 wmi_api = None
 warned = set()
+initialized = False
 
 def execute_loop():
-    global last_full, wmi_api
+    global last_full, wmi_api, initialized
+    if not initialized:
+        logging.basicConfig(filename=os.path.join(mydir, 'watcher.log'), level=logging.INFO,
+                            format='%(asctime)s %(message)s')
+        initialized = True
+
     f = urllib.urlopen("https://raw.githubusercontent.com/KenCoder/ParentalControls/master/watcher.txt")
     config = yaml.safe_load(f)
     f.close()
@@ -90,8 +96,6 @@ class Watcher(win32serviceutil.ServiceFramework):
                               (self._svc_name_, ''))
 
         self.timeout = 10000
-        logging.basicConfig(filename=os.path.join(mydir, 'watcher.log'), level=logging.INFO,
-                            format='%(asctime)s %(message)s')
         while True:
             # Wait for service stop signal, if I timeout, loop again
             rc = win32event.WaitForSingleObject(self.hWaitStop, self.timeout)
