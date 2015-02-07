@@ -5,6 +5,7 @@ Usage : python Watcher.py [install start stop remove test]
 C:\>python Watcher.py  --username <username> --password <PASSWORD> --startup auto install
 """
 
+// TODO :SeDebugPrivilege
 import subprocess
 import time
 import sys
@@ -48,13 +49,15 @@ def execute_loop():
         wmi_api = wmi.WMI()
 
     procs = wmi_api.Win32_Process()
-    if full_log:
-        logging.info("Running %s" % ";".join(x.Name for x in procs))
 
     sched = config['Schedule']
 
     now = datetime.datetime.now()
-    if games_allowed(sched, now):
+    allowed = games_allowed(sched, now)
+    if full_log:
+        logging.info("Running %s allowed %s" % (str(config), allowed))
+    
+    if allowed:
         for how_much in [1, 2]:
             if not how_much in warned and not games_allowed(sched, now + datetime.timedelta(minutes=how_much)):
                 warned.add(how_much)
@@ -105,7 +108,10 @@ class Watcher(win32serviceutil.ServiceFramework):
                 # Stop signal encountered
                 servicemanager.LogInfoMsg("Service - STOPPED")
                 break
-            execute_loop()
+            try:
+                execute_loop()
+            except:
+                logging.exception("Exception in service")
 
 def ctrlHandler(ctrlType):
     return True
