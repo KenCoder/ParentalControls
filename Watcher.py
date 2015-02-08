@@ -5,7 +5,6 @@ Usage : python Watcher.py [install start stop remove test]
 C:\>python Watcher.py  --username <username> --password <PASSWORD> --startup auto install
 """
 
-// TODO :SeDebugPrivilege
 import subprocess
 import time
 import sys
@@ -16,6 +15,7 @@ import win32service
 import win32api
 import win32event
 import logging
+import win32security
 
 import wmi
 import yaml
@@ -24,6 +24,14 @@ import win32serviceutil
 from WatcherLib import games_allowed
 
 mydir = os.path.dirname(os.path.realpath(__file__))
+
+
+def AdjustPrivilege( priv ):
+    flags = win32security.TOKEN_ADJUST_PRIVILEGES | win32security.TOKEN_QUERY
+    htoken =  win32security.OpenProcessToken(win32api.GetCurrentProcess(), flags)
+    id = win32security.LookupPrivilegeValue(None, priv)
+    newPrivileges = [(id, win32security.SE_PRIVILEGE_ENABLED)]
+    win32security.AdjustTokenPrivileges(htoken, 0, newPrivileges)
 
 schedule = r'https://www.dropbox.com/s/j5g11lhkb8gvlyv/Duncan.txt?dl=1'
 log_frequency = 60
@@ -37,6 +45,7 @@ def execute_loop():
     if not initialized:
         logging.basicConfig(filename=os.path.join(mydir, 'watcher.log'), level=logging.INFO,
                             format='%(asctime)s %(message)s')
+        AdjustPrivilege("seDebugPrivilege")
         initialized = True
 
     f = urllib.urlopen(schedule)
