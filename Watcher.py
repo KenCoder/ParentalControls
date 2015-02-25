@@ -39,9 +39,10 @@ last_full = 0
 wmi_api = None
 warned = set()
 initialized = False
+running = set()
 
 def execute_loop():
-    global last_full, wmi_api, initialized
+    global last_full, wmi_api, initialized, running
     if not initialized:
         logging.basicConfig(filename=os.path.join(mydir, 'watcher.log'), level=logging.INFO,
                             format='%(asctime)s %(message)s')
@@ -74,20 +75,31 @@ def execute_loop():
                 break
     else:
         warned.clear()
-        for process in procs:
-            block = len([x for x in config['Block']['Programs'] if x.lower() == process.Name.lower()]) > 0
-            if process.ExecutablePath:
-                root = os.path.dirname(process.ExecutablePath)
-                block = block or len([x for x in config['Block']['Folders'] if os.path.isdir(os.path.join(root, x))]) > 0
-                if block:
-                    process.Terminate()
-                    had_block = True
-                    logging.warning("Terminated program %s" % process.Name)
+    current = set()
+
+    for process in procs:
+        block = len([x for x in config['Block']['Programs'] if x.lower() == process.Name.lower()]) > 0
+        current.add(process.Name)
+        if process.ExecutablePath:
+            root = os.path.dirname(process.ExecutablePath)
+            block = block or len([x for x in config['Block']['Folders'] if os.path.isdir(os.path.join(root, x))]) > 0
+            if not allowed and block:
+                process.Terminate()
+                had_block = True
+                logging.warning("Terminated program %s" % process.Name)
 
         if had_block:
             subprocess.call(os.path.join(mydir, 'blocked.wma'), shell=True)
         if full_log:
             last_full = time.time()
+    if current != running:
+        started = current - running
+        if len(started) > 0:
+            logging.info("Started %s" % started)
+        stopped = running - current
+        if len(stopped) > 0:
+            logging.info("Stopped %s" % stopped)
+        running = current
 
 class Watcher(win32serviceutil.ServiceFramework):
     _svc_name_ = "Game Watcher"
