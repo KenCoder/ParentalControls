@@ -47,6 +47,7 @@ def execute_loop():
         logging.basicConfig(filename=os.path.join(mydir, 'watcher.log'), level=logging.INFO,
                             format='%(asctime)s %(message)s')
         AdjustPrivilege("seDebugPrivilege")
+        logging.info("Initialized")
         initialized = True
 
     f = urllib.urlopen(schedule)
@@ -84,9 +85,12 @@ def execute_loop():
             root = os.path.dirname(process.ExecutablePath)
             block = block or len([x for x in config['Block']['Folders'] if os.path.isdir(os.path.join(root, x))]) > 0
             if not allowed and block:
-                process.Terminate()
-                had_block = True
-                logging.warning("Terminated program %s" % process.Name)
+                try:
+                    process.Terminate()
+                    had_block = True
+                    logging.warning("Terminated program %s" % process.Name)
+                except:
+                    logging.exception("Unexpected error terminating %s" % process.name)
 
         if had_block:
             subprocess.call(os.path.join(mydir, 'blocked.wma'), shell=True)
