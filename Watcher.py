@@ -78,6 +78,21 @@ def execute_loop():
         warned.clear()
     current = set()
 
+    web_block = config['Block']['Websites']
+    with open(r'c:\windows\system32\drivers\etc\hosts', 'r') as f:
+        hosts = f.read()
+    new_hosts = ""
+    for line in hosts.split("\n"):
+        line = line.strip()
+        if len([x for x in web_block if x in line]) == 0 and len(line) > 0:
+            new_hosts += line + "\n"
+    if not allowed:
+        for site in web_block:
+            new_hosts += "127.0.0.1      " + site + "\n"
+    if new_hosts != hosts:
+        with open(r'c:\windows\system32\drivers\etc\hosts', 'w') as f:
+            f.write(new_hosts)
+
     for process in procs:
         block = len([x for x in config['Block']['Programs'] if x.lower() == process.Name.lower()]) > 0
         current.add(process.Name)
